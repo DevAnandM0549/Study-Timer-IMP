@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Gamified Pomodoro Timer</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <!-- NOTIFICATION POPUP -->
+    <div id="notificationPopup" class="notification-popup hidden">
+        <div class="notification-content">
+            <div class="notification-icon" id="notificationIcon">🎉</div>
+            <h3 id="notificationTitle">Congratulations!</h3>
+            <p id="notificationMessage">You've unlocked an achievement!</p>
+            <button class="btn-primary" onclick="closeNotification()">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- TASK DETAIL MODAL -->
+    <div id="taskModal" class="modal hidden">
+        <div class="modal-content task-detail-modal">
+            <div class="modal-header">
+                <h3 id="modalTaskTitle">Task Title</h3>
+                <button class="close-btn" onclick="closeTaskModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="task-detail-info">
+                    <p><strong>📝 Description:</strong> <span id="modalTaskDescription">No description</span></p>
+                    <p><strong>🎯 Priority:</strong> <span id="modalTaskPriority" class="priority-badge">MEDIUM</span></p>
+                    <p><strong>⏱️ Estimated Time:</strong> <span id="modalTaskTime">25 min</span></p>
+                </div>
+                
+                <div class="study-material-section">
+                    <h4>📚 Study Materials</h4>
+                    <div class="file-upload-area" id="fileUploadArea">
+                        <input type="file" id="studyFileInput" accept=".pdf,.txt,.doc,.docx,.png,.jpg,.jpeg" onchange="handleFileUpload(event)">
+                        <p>📁 Drop files here or click to upload</p>
+                        <span>Supports: PDF, TXT, DOC, Images</span>
+                    </div>
+                    <div id="uploadedFiles" class="uploaded-files"></div>
+                </div>
+
+                <div id="studyViewer" class="study-viewer hidden">
+                    <div class="viewer-header">
+                        <span id="viewerFileName">document.pdf</span>
+                        <button class="close-btn" onclick="closeStudyViewer()">×</button>
+                    </div>
+                    <div id="viewerContent" class="viewer-content"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="startTaskTimer()">⏱️ Start Studying</button>
+                <button class="btn-secondary" onclick="closeTaskModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH PAGE -->
+    <div id="authPage" class="page active">
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="signIn" onclick="showAuthTab('signIn')">Sign In</button>
+                <button class="tab-btn" data-tab="signUp" onclick="showAuthTab('signUp')">Sign Up</button>
+            </div>
+
+            <div id="signInContent" class="tab-content active">
+                <h2>Welcome Back! 👋</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 10px;">Continue your learning journey</p>
+                <form id="signInForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="signInUsername">Username</label>
+                        <input type="text" id="signInUsername" placeholder="Enter your username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signInPassword">Password</label>
+                        <input type="password" id="signInPassword" placeholder="Enter your password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Sign In →</button>
+                    <div id="signInError" class="error-message"></div>
+                </form>
+            </div>
+
+            <div id="signUpContent" class="tab-content">
+                <h2>Join StudyFlow 🚀</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 10px;">Start your productivity journey today</p>
+                <form id="signUpForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="signUpUsername">Username</label>
+                        <input type="text" id="signUpUsername" placeholder="Choose a username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signUpEmail">Email</label>
+                        <input type="email" id="signUpEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signUpPassword">Password</label>
+                        <input type="password" id="signUpPassword" placeholder="Create a password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signUpConfirmPassword">Confirm Password</label>
+                        <input type="password" id="signUpConfirmPassword" placeholder="Confirm your password" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Create Account →</button>
+                    <div id="signUpError" class="error-message"></div>
+                    <div id="signUpSuccess" class="success-message"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD PAGE -->
+    <div id="dashboardPage" class="page">
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <h1>🎯 StudyFlow</h1>
+            </div>
+            <div class="navbar-menu">
+                <button id="navHome" class="nav-btn active">🏠 Dashboard</button>
+                <button id="navTimer" class="nav-btn">⏱️ Focus Timer</button>
+                <button id="navTasks" class="nav-btn">📝 Tasks</button>
+                <button id="navAchievements" class="nav-btn">🏆 Achievements</button>
+                <button id="navStats" class="nav-btn">📊 Analytics</button>
+                <button id="logoutBtn" class="nav-btn logout-btn">🚪 Logout</button>
+            </div>
+        </nav>
+
+        <!-- HOME SECTION -->
+        <div id="homeSection" class="section active">
+            <div class="dashboard-header">
+                <h2>Welcome back, <span id="welcomeUser">Scholar</span>! 🌟</h2>
+                <p>Ready to crush your goals today? Let's make it happen.</p>
+            </div>
+
+            <div class="level-progress-card">
+                <div class="level-info">
+                    <div class="level-badge">
+                        <span class="level-number" id="currentLevel">1</span>
+                        <span class="level-label">LEVEL</span>
+                    </div>
+                    <div class="level-details">
+                        <h3 id="levelTitle">Beginner Scholar</h3>
+                        <p id="xpToNext">500 XP to next level</p>
+                    </div>
+                </div>
+                <div class="xp-progress-bar">
+                    <div class="xp-progress-fill" id="xpProgressFill" style="width: 0%"></div>
+                </div>
+                <div class="xp-labels">
+                    <span id="currentXpLabel">0 XP</span>
+                    <span id="nextLevelXpLabel">500 XP</span>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Focus Sessions</div>
+                        <div class="stat-value" id="totalSessions">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Minutes Focused</div>
+                        <div class="stat-value" id="totalMinutes">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Day Streak</div>
+                        <div class="stat-value" id="currentStreak">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-content">
+                        <div class="stat-label">Total XP</div>
+                        <div class="stat-value" id="totalXP">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-btn" onclick="goToTimer()">🎯 Start Focus Session</button>
+                <button class="action-btn" onclick="goToTasks()">➕ Create New Task</button>
+            </div>
+        </div>
+
+        <!-- TIMER SECTION -->
+        <div id="timerSection" class="section">
+            <div class="study-workspace">
+                <div class="timer-panel">
+                    <div class="timer-container">
+                        <h2>Focus Mode 🧘</h2>
+                        
+                        <div id="currentTaskDisplay" class="current-task-display hidden">
+                            <span>📌 Working on: </span>
+                            <strong id="currentTaskName">Task Name</strong>
+                            <button class="toggle-viewer-btn" onclick="toggleDocumentViewer()">📄 Study Material</button>
+                        </div>
+
+                        <div class="session-selector">
+                            <button class="session-btn active" onclick="selectSession('work')">🎯 Focus (25 min)</button>
+                            <button class="session-btn" onclick="selectSession('shortBreak')">☕ Short Break (5 min)</button>
+                            <button class="session-btn" onclick="selectSession('longBreak')">🌴 Long Break (15 min)</button>
+                        </div>
+                        
+                        <div class="timer-display">
+                            <div class="timer-circle">
+                                <div id="timerDisplay">25:00</div>
+                            </div>
+                        </div>
+                        
+                        <div class="timer-controls">
+                            <button id="startBtn" class="btn-primary" onclick="startTimer()">▶️ Start Focus</button>
+                            <button id="pauseBtn" class="btn-secondary" onclick="pauseTimer()" disabled>⏸️ Pause</button>
+                            <button id="resetBtn" class="btn-secondary" onclick="clearTimer()" disabled>🔄 Reset</button>
+                        </div>
+
+                        <div id="sessionComplete" class="session-complete hidden">
+                            <h3>🎉 Amazing Work!</h3>
+                            <p>You've completed a focus session. Time for a well-deserved break!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="documentViewerPanel" class="document-viewer-panel hidden">
+                    <div class="document-viewer-header">
+                        <h3>📖 Study Material</h3>
+                        <div class="viewer-controls">
+                            <select id="fileSelector" onchange="switchFile()">
+                                <option value="">Select a file...</option>
+                            </select>
+                            <button class="close-btn" onclick="toggleDocumentViewer()">×</button>
+                        </div>
+                    </div>
+                    <div id="documentViewerContent" class="document-viewer-content">
+                        <div class="no-file-message">
+                            <p>📁</p>
+                            <p>No study material loaded</p>
+                            <p>Upload files from task details to study here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TASKS SECTION -->
+        <div id="tasksSection" class="section">
+            <div class="tasks-container">
+                <h2>📝 My Tasks</h2>
+                <div class="create-task">
+                    <h3>✨ Create New Task</h3>
+                    <form id="createTaskForm">
+                        <div class="form-row">
+                            <input type="text" id="taskTitle" placeholder="What do you need to accomplish?" required>
+                            <input type="number" id="taskDuration" placeholder="Duration (min)" min="1" required>
+                            <select id="taskPriority">
+                                <option value="LOW">🟢 Low Priority</option>
+                                <option value="MEDIUM" selected>🟡 Medium Priority</option>
+                                <option value="HIGH">🔴 High Priority</option>
+                            </select>
+                        </div>
+                        <textarea id="taskDescription" placeholder="Add details about this task (optional)..."></textarea>
+                        <button type="submit" class="btn-primary">➕ Add Task</button>
+                    </form>
+                </div>
+
+                <div class="tasks-list">
+                    <h3>🎯 Active Tasks <span class="task-hint">(Click to view details)</span></h3>
+                    <div id="activeTasksList" class="task-items">
+                        <p style="text-align: center; color: var(--text-muted); padding: 40px;">No active tasks. Create one above! 🚀</p>
+                    </div>
+                </div>
+
+                <div class="tasks-list">
+                    <h3>✅ Completed Tasks</h3>
+                    <div id="completedTasksList" class="task-items">
+                        <p style="text-align: center; color: var(--text-muted); padding: 40px;">Complete tasks to see them here! 💪</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACHIEVEMENTS SECTION -->
+        <div id="achievementsSection" class="section">
+            <div class="achievements-container">
+                <h2>🏆 Achievements</h2>
+                <p class="achievements-subtitle">Complete challenges to unlock achievements and earn bonus XP! Each achievement brings you closer to mastery.</p>
+                
+                <div class="achievements-legend">
+                    <div class="legend-item">
+                        <span class="legend-icon">🔒</span>
+                        <span>Locked - Complete the challenge to unlock</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-icon">🏆</span>
+                        <span>Unlocked - You've earned this!</span>
+                    </div>
+                </div>
+
+                <div id="achievementsGrid" class="achievements-grid">
+                    <!-- Achievements loaded dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- STATISTICS SECTION -->
+        <div id="statsSection" class="section">
+            <div class="statistics-container">
+                <h2>📊 Your Analytics</h2>
+                
+                <div class="stats-summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-icon">📚</div>
+                        <div class="summary-value" id="totalStudyHours">0</div>
+                        <div class="summary-label">Total Study Hours</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">📅</div>
+                        <div class="summary-value" id="todaySessions">0</div>
+                        <div class="summary-label">Today's Sessions</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">📊</div>
+                        <div class="summary-value" id="weekSessions">0</div>
+                        <div class="summary-label">This Week</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">✅</div>
+                        <div class="summary-value" id="completedTasksCount">0</div>
+                        <div class="summary-label">Tasks Completed</div>
+                    </div>
+                </div>
+
+                <div class="weekly-chart">
+                    <h3>📈 Weekly Focus Activity</h3>
+                    <div id="weeklyChartContainer" class="chart-container">
+                        <!-- Chart rendered dynamically -->
+                    </div>
+                </div>
+
+                <div class="session-history">
+                    <h3>🕐 Recent Study Sessions</h3>
+                    <div id="sessionHistoryList" class="history-list">
+                        <p style="text-align: center; color: var(--text-muted); padding: 40px;">No sessions yet. Start studying to see your history! 📖</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="footer-logo">🎯</span>
+                    <span class="footer-title">StudyFlow</span>
+                </div>
+                <div class="footer-info">
+                    <p>Crafted with ☕ & 💻 as a 2nd Year Java Mini Project</p>
+                    <p class="footer-college">Sri Sai Ram Engineering College • 2025</p>
+                </div>
+                <div class="footer-tagline">
+                    <span>📚 Study Smart. Stay Focused. Level Up! 🚀</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>
