@@ -52,15 +52,6 @@ public class UserService {
         // Create achievements for new user
         createAchievementsForUser(user);
 
-        // After registration, export all users to Excel (saves in Downloads folder)
-        try {
-            String downloadsPath = System.getProperty("user.home") + java.io.File.separator + "Downloads" + java.io.File.separator + "registered_users.xlsx";
-            exportUsersToExcel(downloadsPath);
-            System.out.println("✅ User data exported to " + downloadsPath);
-        } catch (IOException e) {
-            System.err.println("⚠️ Failed to export users to Excel: " + e.getMessage());
-        }
-
         return user;
     }
 
