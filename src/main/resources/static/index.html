@@ -126,6 +126,8 @@
                 <button id="navTasks" class="nav-btn">📝 Tasks</button>
                 <button id="navAchievements" class="nav-btn">🏆 Achievements</button>
                 <button id="navStats" class="nav-btn">📊 Analytics</button>
+                <button id="navHelp" class="nav-btn">❓ How to Use</button>
+                <button id="navFeedback" class="nav-btn">💬 Feedback</button>
                 <button id="logoutBtn" class="nav-btn logout-btn">🚪 Logout</button>
             </div>
         </nav>
@@ -354,6 +356,115 @@
                         <p style="text-align: center; color: var(--text-muted); padding: 40px;">No sessions yet. Start studying to see your history! 📖</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- HOW TO USE SECTION -->
+        <div id="helpSection" class="section">
+            <div class="help-container">
+                <h2>❓ How to Use StudyFlow</h2>
+                <p class="help-subtitle">Master your productivity with our gamified Pomodoro timer</p>
+                
+                <div class="help-steps">
+                    <div class="help-step">
+                        <div class="help-step-number">1</div>
+                        <div class="help-step-content">
+                            <h3>📝 Create Your Tasks</h3>
+                            <p>Go to the Tasks section and add what you need to accomplish. Set the duration, priority, and add a description to stay organized.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="help-step">
+                        <div class="help-step-number">2</div>
+                        <div class="help-step-content">
+                            <h3>📚 Upload Study Materials</h3>
+                            <p>Click on any task to open its details. Upload PDFs, images, or text files that you need to study. These materials will be available during your focus sessions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="help-step">
+                        <div class="help-step-number">3</div>
+                        <div class="help-step-content">
+                            <h3>⏱️ Start Focus Sessions</h3>
+                            <p>Click "Start" on a task or go to the Focus Timer. Your study materials will appear in a side panel so you can study while the timer runs.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="help-step">
+                        <div class="help-step-number">4</div>
+                        <div class="help-step-content">
+                            <h3>⭐ Earn XP & Level Up</h3>
+                            <p>Complete sessions and tasks to earn XP. Level up to unlock new titles and track your progress on the dashboard.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="help-step">
+                        <div class="help-step-number">5</div>
+                        <div class="help-step-content">
+                            <h3>🏆 Unlock Achievements</h3>
+                            <p>Complete challenges like maintaining streaks, studying at specific times, or hitting milestones to unlock achievements and bonus XP.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="help-step">
+                        <div class="help-step-number">6</div>
+                        <div class="help-step-content">
+                            <h3>📊 Track Your Analytics</h3>
+                            <p>View your study patterns, weekly activity, and session history in the Analytics section to understand your productivity trends.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="help-tips">
+                    <h3>💡 Pro Tips</h3>
+                    <ul>
+                        <li>Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break</li>
+                        <li>Upload your study materials before starting a session for easy access</li>
+                        <li>Set realistic task durations to maintain motivation</li>
+                        <li>Check your achievements regularly to see what challenges you can complete</li>
+                        <li>Build a daily streak to maximize your XP gains</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEEDBACK SECTION -->
+        <div id="feedbackSection" class="section">
+            <div class="feedback-container">
+                <h2>💬 Send Us Your Feedback</h2>
+                <p class="feedback-subtitle">We'd love to hear your thoughts, suggestions, or report any issues!</p>
+                
+                <form id="feedbackForm" class="feedback-form">
+                    <div class="form-group">
+                        <label for="feedbackType">Feedback Type</label>
+                        <select id="feedbackType" required>
+                            <option value="">Select type...</option>
+                            <option value="BUG">🐛 Bug Report</option>
+                            <option value="FEATURE">💡 Feature Request</option>
+                            <option value="IMPROVEMENT">✨ Improvement Suggestion</option>
+                            <option value="GENERAL">💬 General Feedback</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedbackSubject">Subject</label>
+                        <input type="text" id="feedbackSubject" placeholder="Brief summary of your feedback" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedbackMessage">Message</label>
+                        <textarea id="feedbackMessage" rows="6" placeholder="Tell us more about your feedback..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedbackEmail">Your Email (optional)</label>
+                        <input type="email" id="feedbackEmail" placeholder="If you'd like us to follow up">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">📤 Send Feedback</button>
+                    <div id="feedbackSuccess" class="success-message"></div>
+                    <div id="feedbackError" class="error-message"></div>
+                </form>
             </div>
         </div>
 

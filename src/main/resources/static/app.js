@@ -1280,7 +1280,51 @@ document.getElementById('navStats').addEventListener('click', () => {
     loadStatistics();
 });
 
+document.getElementById('navHelp').addEventListener('click', () => {
+    showSection('helpSection');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('navHelp').classList.add('active');
+});
+
+document.getElementById('navFeedback').addEventListener('click', () => {
+    showSection('feedbackSection');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('navFeedback').classList.add('active');
+});
+
 document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// ==================== FEEDBACK ====================
+document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const feedbackData = {
+        type: document.getElementById('feedbackType').value,
+        subject: document.getElementById('feedbackSubject').value,
+        message: document.getElementById('feedbackMessage').value,
+        email: document.getElementById('feedbackEmail').value || null,
+        username: currentUser ? currentUser.username : 'Anonymous'
+    };
+    
+    try {
+        const response = await authenticatedFetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(feedbackData)
+        });
+        
+        if (response && response.ok) {
+            showSuccess('feedbackSuccess', '✅ Thank you! Your feedback has been sent successfully.');
+            document.getElementById('feedbackForm').reset();
+            showNotification('💬', 'Feedback Sent!', 'Thank you for helping us improve StudyFlow!');
+        } else {
+            showError('feedbackError', 'Failed to send feedback. Please try again.');
+        }
+    } catch (error) {
+        console.error('Failed to send feedback:', error);
+        showError('feedbackError', 'Failed to send feedback. Please try again.');
+    }
+});
 
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
