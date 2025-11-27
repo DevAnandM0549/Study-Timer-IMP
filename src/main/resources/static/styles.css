@@ -2373,11 +2373,32 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     border-radius: 12px;
     border: 1px solid var(--border-color);
     transition: transform 0.2s, box-shadow 0.2s;
+    opacity: 0;
+    animation: slideInFromTop 0.6s ease forwards;
 }
 
+.help-step:nth-child(1) { animation-delay: 0.1s; }
+.help-step:nth-child(2) { animation-delay: 0.2s; }
+.help-step:nth-child(3) { animation-delay: 0.3s; }
+.help-step:nth-child(4) { animation-delay: 0.4s; }
+.help-step:nth-child(5) { animation-delay: 0.5s; }
+.help-step:nth-child(6) { animation-delay: 0.6s; }
+.help-step:nth-child(7) { animation-delay: 0.7s; }
+
 .help-step:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(108, 99, 255, 0.3);
+}
+
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .help-step-number {
@@ -2411,35 +2432,60 @@ button:focus-visible, input:focus-visible, select:focus-visible {
     padding: 30px;
     border-radius: 12px;
     border: 1px solid var(--border-color);
+    overflow: hidden;
 }
 
 .help-tips h3 {
     margin-top: 0;
+    margin-bottom: 20px;
     color: var(--text-primary);
     font-size: 1.4rem;
 }
 
-.help-tips ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.help-tips li {
-    padding: 12px 0;
-    padding-left: 30px;
+.tips-slider {
+    overflow: hidden;
     position: relative;
-    color: var(--text-secondary);
-    line-height: 1.6;
+    padding: 10px 0;
 }
 
-.help-tips li:before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: var(--success-color);
-    font-weight: bold;
-    font-size: 1.2rem;
+.tips-track {
+    display: flex;
+    gap: 20px;
+    animation: scrollTips 40s linear infinite;
+    width: fit-content;
+}
+
+.tips-track:hover {
+    animation-play-state: paused;
+}
+
+.tip-item {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(108, 99, 255, 0.05) 100%);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+    padding: 15px 25px;
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    min-width: 400px;
+    max-width: 400px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tip-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px rgba(108, 99, 255, 0.3);
+}
+
+@keyframes scrollTips {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
 }
 
 /* ==================== FEEDBACK SECTION ==================== */
@@ -2782,4 +2828,25 @@ select option:checked {
 
 .chat-messages::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(180deg, #8B85FF 0%, #FF8BB5 100%);
+}
+
+
+/* ==================== INTERACTIVE CANVAS BACKGROUND ==================== */
+.interactive-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+#authPage, #feedbackSection {
+    position: relative;
+}
+
+.auth-container, .feedback-container {
+    position: relative;
+    z-index: 1;
 }

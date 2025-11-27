@@ -1414,3 +1414,129 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
 window.addEventListener('DOMContentLoaded', () => {
     resetTimer();
 });
+
+
+// ==================== INTERACTIVE PARTICLE BACKGROUND ====================
+class ParticleBackground {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        
+        this.ctx = this.canvas.getContext('2d');
+        this.particles = [];
+        this.mouse = { x: null, y: null, radius: 150 };
+        this.colors = ['#6C63FF', '#FF6B9D', '#00D4AA', '#8B85FF'];
+        
+        this.resize();
+        this.init();
+        this.animate();
+        
+        window.addEventListener('resize', () => this.resize());
+        this.canvas.parentElement.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+        this.canvas.parentElement.addEventListener('mouseleave', () => {
+            this.mouse.x = null;
+            this.mouse.y = null;
+        });
+    }
+    
+    resize() {
+        this.canvas.width = this.canvas.parentElement.offsetWidth;
+        this.canvas.height = this.canvas.parentElement.offsetHeight;
+    }
+    
+    init() {
+        this.particles = [];
+        const numberOfParticles = Math.floor((this.canvas.width * this.canvas.height) / 15000);
+        
+        for (let i = 0; i < numberOfParticles; i++) {
+            const size = Math.random() * 3 + 1;
+            const x = Math.random() * this.canvas.width;
+            const y = Math.random() * this.canvas.height;
+            const speedX = (Math.random() - 0.5) * 0.5;
+            const speedY = (Math.random() - 0.5) * 0.5;
+            const color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            
+            this.particles.push({ x, y, size, speedX, speedY, color, baseX: x, baseY: y });
+        }
+    }
+    
+    handleMouseMove(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.mouse.x = e.clientX - rect.left;
+        this.mouse.y = e.clientY - rect.top;
+    }
+    
+    animate() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.particles.forEach((particle, index) => {
+            // Move particles
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
+            
+            // Bounce off edges
+            if (particle.x < 0 || particle.x > this.canvas.width) particle.speedX *= -1;
+            if (particle.y < 0 || particle.y > this.canvas.height) particle.speedY *= -1;
+            
+            // Mouse interaction
+            if (this.mouse.x != null && this.mouse.y != null) {
+                const dx = this.mouse.x - particle.x;
+                const dy = this.mouse.y - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < this.mouse.radius) {
+                    const force = (this.mouse.radius - distance) / this.mouse.radius;
+                    const angle = Math.atan2(dy, dx);
+                    particle.x -= Math.cos(angle) * force * 3;
+                    particle.y -= Math.sin(angle) * force * 3;
+                }
+            }
+            
+            // Return to base position slowly
+            particle.x += (particle.baseX - particle.x) * 0.01;
+            particle.y += (particle.baseY - particle.y) * 0.01;
+            
+            // Draw particle
+            this.ctx.fillStyle = particle.color;
+            this.ctx.globalAlpha = 0.6;
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Draw connections
+            for (let j = index + 1; j < this.particles.length; j++) {
+                const other = this.particles[j];
+                const dx = particle.x - other.x;
+                const dy = particle.y - other.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 100) {
+                    this.ctx.strokeStyle = particle.color;
+                    this.ctx.globalAlpha = (1 - distance / 100) * 0.3;
+                    this.ctx.lineWidth = 0.5;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(particle.x, particle.y);
+                    this.ctx.lineTo(other.x, other.y);
+                    this.ctx.stroke();
+                }
+            }
+        });
+        
+        this.ctx.globalAlpha = 1;
+        requestAnimationFrame(() => this.animate());
+    }
+}
+
+// Initialize particle backgrounds
+window.addEventListener('DOMContentLoaded', () => {
+    new ParticleBackground('authCanvas');
+    
+    // Initialize feedback canvas when section is shown
+    document.getElementById('navFeedback')?.addEventListener('click', () => {
+        setTimeout(() => {
+            if (!window.feedbackParticles) {
+                window.feedbackParticles = new ParticleBackground('feedbackCanvas');
+            }
+        }, 100);
+    });
+});

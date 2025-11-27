@@ -37,10 +37,14 @@ public class AIChatService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("Authorization", "Bearer " + apiKey.trim());
 
-            // Minimal Perplexity API request
+            // Perplexity API request with valid model
             Map<String, Object> requestBody = new HashMap<>();
-            requestBody.put("model", "llama-3.1-sonar-small-128k-online");
+            requestBody.put("model", "llama-3.1-sonar-small-128k-chat");
             requestBody.put("messages", List.of(
+                Map.of(
+                    "role", "system",
+                    "content", "You are a helpful study assistant for StudyFlow. Provide concise, encouraging advice about studying, time management, and productivity. Keep responses friendly and under 200 words."
+                ),
                 Map.of(
                     "role", "user",
                     "content", userMessage
