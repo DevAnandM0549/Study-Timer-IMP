@@ -1280,6 +1280,12 @@ document.getElementById('navStats').addEventListener('click', () => {
     loadStatistics();
 });
 
+document.getElementById('navAIChat').addEventListener('click', () => {
+    showSection('aiChatSection');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('navAIChat').classList.add('active');
+});
+
 document.getElementById('navHelp').addEventListener('click', () => {
     showSection('helpSection');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -1293,6 +1299,84 @@ document.getElementById('navFeedback').addEventListener('click', () => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// ==================== AI CHAT ====================
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addChatMessage(message, 'user');
+    input.value = '';
+    
+    // Show loading
+    document.getElementById('chatLoading').classList.remove('hidden');
+    
+    try {
+        const response = await authenticatedFetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message })
+        });
+        
+        if (response && response.ok) {
+            const data = await response.json();
+            addChatMessage(data.response, 'ai');
+        } else {
+            addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
+        }
+    } catch (error) {
+        console.error('Chat error:', error);
+        addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
+    } finally {
+        document.getElementById('chatLoading').classList.add('hidden');
+    }
+}
+
+function addChatMessage(text, sender) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const messageEl = document.createElement('div');
+    messageEl.className = `chat-message ${sender}-message`;
+    
+    const avatar = sender === 'ai' ? '🤖' : '👤';
+    
+    // Format the text with proper line breaks and preserve formatting
+    let formattedText = escapeHtml(text)
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+    
+    // Wrap in paragraph if not already
+    if (!formattedText.startsWith('<p>')) {
+        formattedText = '<p>' + formattedText + '</p>';
+    }
+    
+    messageEl.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            ${formattedText}
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageEl);
+    
+    // Smooth scroll to bottom
+    setTimeout(() => {
+        messagesContainer.scrollTo({
+            top: messagesContainer.scrollHeight,
+            behavior: 'smooth'
+        });
+    }, 100);
+}
+
+document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+
+document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendChatMessage();
+    }
+});
 
 // ==================== FEEDBACK ====================
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
