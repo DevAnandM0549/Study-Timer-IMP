@@ -2857,7 +2857,8 @@ select option:checked {
 /* AUTH PAGE - Flowing waves */
 #authPage {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #authPage::before {
@@ -2911,7 +2912,7 @@ select option:checked {
 /* HOME SECTION - Rising particles */
 #homeSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #homeSection::before,
@@ -2957,7 +2958,7 @@ select option:checked {
 /* TIMER SECTION - Rotating rings */
 #timerSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #timerSection::before,
@@ -2997,7 +2998,7 @@ select option:checked {
 /* TASKS SECTION - Diagonal stripes */
 #tasksSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #tasksSection::before {
@@ -3030,7 +3031,7 @@ select option:checked {
 /* ACHIEVEMENTS SECTION - Sparkling stars */
 #achievementsSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #achievementsSection::before,
@@ -3069,7 +3070,7 @@ select option:checked {
 /* STATS SECTION - Data waves */
 #statsSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #statsSection::before {
@@ -3100,7 +3101,7 @@ select option:checked {
 /* HELP SECTION - Floating bubbles */
 #helpSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #helpSection::before,
@@ -3147,7 +3148,7 @@ select option:checked {
 /* FEEDBACK SECTION - Morphing shapes */
 #feedbackSection {
     position: relative;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 #feedbackSection::before {

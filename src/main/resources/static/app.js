@@ -1280,12 +1280,6 @@ document.getElementById('navStats').addEventListener('click', () => {
     loadStatistics();
 });
 
-document.getElementById('navAIChat').addEventListener('click', () => {
-    showSection('aiChatSection');
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('navAIChat').classList.add('active');
-});
-
 document.getElementById('navHelp').addEventListener('click', () => {
     showSection('helpSection');
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
