@@ -2854,114 +2854,150 @@ select option:checked {
 
 /* ==================== UNIQUE MOTION GRAPHICS FOR EACH PAGE ==================== */
 
-/* AUTH PAGE - Flowing waves */
+/* AUTH PAGE - Flowing waves with multiple animated layers */
 #authPage {
     position: relative;
     overflow-x: hidden;
     overflow-y: auto;
 }
 
+/* Animated gradient background */
 #authPage::before {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
+    top: -50%;
+    left: -50%;
     width: 200%;
-    height: 100%;
-    background: linear-gradient(180deg, 
-        transparent 0%,
-        rgba(108, 99, 255, 0.05) 50%,
-        rgba(255, 107, 157, 0.08) 100%
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        rgba(108, 99, 255, 0.15) 0%,
+        rgba(255, 107, 157, 0.12) 25%,
+        rgba(0, 212, 170, 0.15) 50%,
+        rgba(139, 133, 255, 0.12) 75%,
+        rgba(108, 99, 255, 0.15) 100%
     );
-    animation: flowingWaves 15s ease-in-out infinite;
+    animation: rotateAuthGradient 20s linear infinite;
     z-index: 0;
 }
 
+/* Large pulsing orb */
 #authPage::after {
     content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(0, 212, 170, 0.1) 0%, transparent 70%);
-    animation: pulseOrb 8s ease-in-out infinite;
+    top: 20%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: authPulseOrb 6s ease-in-out infinite;
     z-index: 0;
 }
 
-@keyframes flowingWaves {
-    0%, 100% {
-        transform: translateX(0) translateY(0);
+@keyframes rotateAuthGradient {
+    0% {
+        transform: rotate(0deg) scale(1);
     }
     50% {
-        transform: translateX(-50%) translateY(-20px);
+        transform: rotate(180deg) scale(1.1);
+    }
+    100% {
+        transform: rotate(360deg) scale(1);
     }
 }
 
-@keyframes pulseOrb {
+@keyframes authPulseOrb {
     0%, 100% {
         transform: scale(1) translate(0, 0);
-        opacity: 0.3;
+        opacity: 0.4;
     }
     50% {
-        transform: scale(1.3) translate(-50px, 50px);
-        opacity: 0.6;
+        transform: scale(1.4) translate(-80px, 80px);
+        opacity: 0.7;
     }
 }
 
-/* HOME SECTION - Rising particles */
+/* HOME SECTION - Rising particles with rotating background */
 #homeSection {
     position: relative;
     overflow-x: hidden;
 }
 
-#homeSection::before,
-#homeSection::after {
+/* Rotating gradient background */
+#homeSection::before {
     content: '';
     position: absolute;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    animation: risingParticles 12s linear infinite;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        135deg,
+        rgba(108, 99, 255, 0.08) 0%,
+        rgba(255, 107, 157, 0.06) 50%,
+        rgba(0, 212, 170, 0.08) 100%
+    );
+    animation: rotateHomeGradient 25s linear infinite;
     z-index: 0;
 }
 
-#homeSection::before {
-    left: 20%;
-    background: radial-gradient(circle, rgba(108, 99, 255, 0.15) 0%, transparent 70%);
-    animation-delay: 0s;
-}
-
+/* Floating orb */
 #homeSection::after {
-    right: 25%;
-    background: radial-gradient(circle, rgba(255, 107, 157, 0.12) 0%, transparent 70%);
-    animation-delay: 6s;
+    content: '';
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.2) 0%, transparent 70%);
+    animation: floatHomeOrb 10s ease-in-out infinite;
+    z-index: 0;
 }
 
-@keyframes risingParticles {
+@keyframes rotateHomeGradient {
     0% {
-        bottom: -150px;
-        transform: translateX(0) scale(0.5);
-        opacity: 0;
-    }
-    50% {
-        opacity: 1;
-        transform: translateX(50px) scale(1);
+        transform: rotate(0deg);
     }
     100% {
-        bottom: 100%;
-        transform: translateX(-30px) scale(0.8);
-        opacity: 0;
+        transform: rotate(360deg);
     }
 }
 
-/* TIMER SECTION - Rotating rings */
+@keyframes floatHomeOrb {
+    0%, 100% {
+        top: 10%;
+        left: 15%;
+        transform: scale(1);
+    }
+    50% {
+        top: 60%;
+        left: 70%;
+        transform: scale(1.3);
+    }
+}
+
+/* TIMER SECTION - Rotating rings with pulsing center */
 #timerSection {
     position: relative;
     overflow-x: hidden;
 }
 
-#timerSection::before,
+/* Pulsing center glow */
+#timerSection::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(108, 99, 255, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulseTimerCenter 4s ease-in-out infinite;
+    z-index: 0;
+}
+
+/* Rotating ring */
 #timerSection::after {
     content: '';
     position: absolute;
@@ -2969,38 +3005,41 @@ select option:checked {
     left: 50%;
     width: 600px;
     height: 600px;
-    border: 2px solid rgba(108, 99, 255, 0.1);
+    border: 3px solid rgba(255, 107, 157, 0.15);
     border-radius: 50%;
-    animation: rotatingRings 20s linear infinite;
+    border-top-color: rgba(108, 99, 255, 0.3);
+    border-right-color: rgba(0, 212, 170, 0.2);
+    animation: rotateTimerRing 15s linear infinite;
     z-index: 0;
 }
 
-#timerSection::after {
-    width: 800px;
-    height: 800px;
-    border-color: rgba(255, 107, 157, 0.08);
-    animation-duration: 30s;
-    animation-direction: reverse;
-}
-
-@keyframes rotatingRings {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+@keyframes pulseTimerCenter {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
     }
     50% {
-        transform: translate(-50%, -50%) rotate(180deg) scale(1.1);
-    }
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg) scale(1);
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.6;
     }
 }
 
-/* TASKS SECTION - Diagonal stripes */
+@keyframes rotateTimerRing {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+/* TASKS SECTION - Diagonal stripes with moving orbs */
 #tasksSection {
     position: relative;
     overflow-x: hidden;
 }
 
+/* Moving diagonal stripes */
 #tasksSection::before {
     content: '';
     position: absolute;
@@ -3011,11 +3050,23 @@ select option:checked {
     background: repeating-linear-gradient(
         45deg,
         transparent,
-        transparent 100px,
-        rgba(108, 99, 255, 0.03) 100px,
-        rgba(108, 99, 255, 0.03) 200px
+        transparent 80px,
+        rgba(108, 99, 255, 0.08) 80px,
+        rgba(108, 99, 255, 0.08) 160px
     );
-    animation: diagonalSlide 25s linear infinite;
+    animation: diagonalSlide 20s linear infinite;
+    z-index: 0;
+}
+
+/* Moving orb */
+#tasksSection::after {
+    content: '';
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(0, 212, 170, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: moveTaskOrb 12s ease-in-out infinite;
     z-index: 0;
 }
 
@@ -3024,165 +3075,263 @@ select option:checked {
         transform: translate(0, 0);
     }
     100% {
-        transform: translate(200px, 200px);
+        transform: translate(160px, 160px);
     }
 }
 
-/* ACHIEVEMENTS SECTION - Sparkling stars */
+@keyframes moveTaskOrb {
+    0%, 100% {
+        top: 20%;
+        right: 10%;
+    }
+    50% {
+        top: 70%;
+        right: 80%;
+    }
+}
+
+/* ACHIEVEMENTS SECTION - Sparkling stars with gradient */
 #achievementsSection {
     position: relative;
     overflow-x: hidden;
 }
 
-#achievementsSection::before,
-#achievementsSection::after {
-    content: '⭐';
+/* Rotating gradient */
+#achievementsSection::before {
+    content: '';
     position: absolute;
-    font-size: 30px;
-    opacity: 0;
-    animation: sparklingStar 4s ease-in-out infinite;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at 30% 40%,
+        rgba(255, 215, 0, 0.1) 0%,
+        transparent 50%
+    ),
+    radial-gradient(
+        circle at 70% 60%,
+        rgba(108, 99, 255, 0.08) 0%,
+        transparent 50%
+    );
+    animation: rotateAchievementGradient 18s linear infinite;
     z-index: 0;
 }
 
-#achievementsSection::before {
-    top: 20%;
-    left: 15%;
-    animation-delay: 0s;
-}
-
+/* Pulsing trophy glow */
 #achievementsSection::after {
-    top: 60%;
-    right: 20%;
-    animation-delay: 2s;
+    content: '🏆';
+    position: absolute;
+    top: 15%;
+    right: 15%;
+    font-size: 60px;
+    opacity: 0;
+    animation: trophyPulse 5s ease-in-out infinite;
+    z-index: 0;
 }
 
-@keyframes sparklingStar {
+@keyframes rotateAchievementGradient {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes trophyPulse {
     0%, 100% {
         opacity: 0;
-        transform: scale(0) rotate(0deg);
+        transform: scale(0.5) rotate(-20deg);
     }
     50% {
-        opacity: 1;
-        transform: scale(1.5) rotate(180deg);
+        opacity: 0.6;
+        transform: scale(1.2) rotate(20deg);
     }
 }
 
-/* STATS SECTION - Data waves */
+/* STATS SECTION - Data waves with chart bars */
 #statsSection {
     position: relative;
     overflow-x: hidden;
 }
 
+/* Animated wave background */
 #statsSection::before {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
-    height: 200px;
+    width: 200%;
+    height: 300px;
     background: linear-gradient(90deg,
-        rgba(108, 99, 255, 0.05) 0%,
-        rgba(0, 212, 170, 0.08) 50%,
-        rgba(108, 99, 255, 0.05) 100%
+        rgba(108, 99, 255, 0.12) 0%,
+        rgba(0, 212, 170, 0.15) 25%,
+        rgba(255, 107, 157, 0.12) 50%,
+        rgba(0, 212, 170, 0.15) 75%,
+        rgba(108, 99, 255, 0.12) 100%
     );
-    animation: dataWave 8s ease-in-out infinite;
+    animation: statsWave 12s ease-in-out infinite;
     z-index: 0;
 }
 
-@keyframes dataWave {
+/* Pulsing chart icon */
+#statsSection::after {
+    content: '📊';
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    font-size: 50px;
+    opacity: 0;
+    animation: chartPulse 4s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes statsWave {
     0%, 100% {
-        transform: translateY(0) scaleY(1);
+        transform: translateX(0) translateY(0);
     }
     50% {
-        transform: translateY(-30px) scaleY(1.2);
+        transform: translateX(-50%) translateY(-40px);
     }
 }
 
-/* HELP SECTION - Floating bubbles */
+@keyframes chartPulse {
+    0%, 100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+    }
+}
+
+/* HELP SECTION - Floating bubbles with question marks */
 #helpSection {
     position: relative;
     overflow-x: hidden;
 }
 
-#helpSection::before,
-#helpSection::after {
+/* Large floating bubble */
+#helpSection::before {
     content: '';
     position: absolute;
+    width: 350px;
+    height: 350px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 212, 170, 0.1) 0%, transparent 70%);
-    animation: floatingBubbles 10s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(0, 212, 170, 0.2) 0%, transparent 70%);
+    animation: floatHelpBubble 14s ease-in-out infinite;
     z-index: 0;
 }
 
-#helpSection::before {
-    width: 200px;
-    height: 200px;
-    left: 10%;
-    bottom: 10%;
-}
-
+/* Question mark icon */
 #helpSection::after {
-    width: 150px;
-    height: 150px;
-    right: 15%;
-    top: 20%;
-    animation-delay: 5s;
-    background: radial-gradient(circle, rgba(255, 107, 157, 0.1) 0%, transparent 70%);
+    content: '❓';
+    position: absolute;
+    font-size: 50px;
+    opacity: 0;
+    animation: questionPulse 6s ease-in-out infinite;
+    z-index: 0;
 }
 
-@keyframes floatingBubbles {
+@keyframes floatHelpBubble {
     0%, 100% {
-        transform: translateY(0) translateX(0);
+        top: 10%;
+        left: 10%;
+        transform: scale(1);
     }
-    25% {
-        transform: translateY(-50px) translateX(30px);
+    33% {
+        top: 60%;
+        left: 70%;
+        transform: scale(1.2);
+    }
+    66% {
+        top: 30%;
+        left: 80%;
+        transform: scale(0.9);
+    }
+}
+
+@keyframes questionPulse {
+    0%, 100% {
+        top: 20%;
+        right: 15%;
+        opacity: 0;
+        transform: scale(0.5) rotate(-30deg);
     }
     50% {
-        transform: translateY(-20px) translateX(-20px);
-    }
-    75% {
-        transform: translateY(-40px) translateX(40px);
+        top: 25%;
+        right: 20%;
+        opacity: 0.6;
+        transform: scale(1.3) rotate(30deg);
     }
 }
 
-/* FEEDBACK SECTION - Morphing shapes */
+/* FEEDBACK SECTION - Morphing shapes with speech bubble */
 #feedbackSection {
     position: relative;
     overflow-x: hidden;
 }
 
+/* Morphing blob */
 #feedbackSection::before {
     content: '';
     position: absolute;
-    top: 20%;
-    right: 10%;
-    width: 300px;
-    height: 300px;
+    top: 15%;
+    right: 5%;
+    width: 400px;
+    height: 400px;
     background: linear-gradient(135deg, 
-        rgba(108, 99, 255, 0.08) 0%,
-        rgba(255, 107, 157, 0.06) 100%
+        rgba(108, 99, 255, 0.15) 0%,
+        rgba(255, 107, 157, 0.12) 100%
     );
     border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-    animation: morphingShape 12s ease-in-out infinite;
+    animation: morphFeedbackShape 10s ease-in-out infinite;
     z-index: 0;
 }
 
-@keyframes morphingShape {
+/* Speech bubble icon */
+#feedbackSection::after {
+    content: '💬';
+    position: absolute;
+    font-size: 50px;
+    opacity: 0;
+    animation: speechBubblePulse 5s ease-in-out infinite;
+    z-index: 0;
+}
+
+@keyframes morphFeedbackShape {
     0%, 100% {
         border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
         transform: rotate(0deg) scale(1);
     }
     25% {
         border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
-        transform: rotate(90deg) scale(1.1);
+        transform: rotate(90deg) scale(1.2);
     }
     50% {
         border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
-        transform: rotate(180deg) scale(0.9);
+        transform: rotate(180deg) scale(0.95);
     }
     75% {
         border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
-        transform: rotate(270deg) scale(1.05);
+        transform: rotate(270deg) scale(1.1);
+    }
+}
+
+@keyframes speechBubblePulse {
+    0%, 100% {
+        top: 10%;
+        left: 10%;
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    50% {
+        top: 15%;
+        left: 15%;
+        opacity: 0.6;
+        transform: scale(1.4);
     }
 }
 
@@ -3211,7 +3360,7 @@ select option:checked {
 
 /* ==================== FIX AUTH AND FEEDBACK PAGE SPACING ==================== */
 
-/* Auth page container */
+/* Auth page - center everything */
 #authPage {
     display: flex;
     align-items: center;
@@ -3220,48 +3369,63 @@ select option:checked {
     padding: 20px;
 }
 
-.auth-container {
+#authPage .auth-container {
     width: 100%;
-    max-width: 450px;
-    margin: 0 auto;
+    max-width: 420px;
+    position: relative;
+    z-index: 10;
 }
 
-/* Feedback section container */
+/* Feedback section - center and compact */
 #feedbackSection {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 80px);
-    padding: 40px 20px;
+    padding: 60px 20px;
 }
 
-.feedback-container {
+#feedbackSection .feedback-container {
     width: 100%;
-    max-width: 700px;
+    max-width: 650px;
     margin: 0 auto;
+    position: relative;
+    z-index: 10;
 }
 
-/* Reduce excessive padding */
+/* Reduce form padding */
 .auth-form {
-    padding: 30px;
+    padding: 25px;
 }
 
 .feedback-form {
-    padding: 30px;
+    padding: 25px;
 }
 
 /* Compact form groups */
-.auth-form .form-group,
+.auth-form .form-group {
+    margin-bottom: 18px;
+}
+
 .feedback-form .form-group {
     margin-bottom: 20px;
 }
 
 /* Auth tabs */
 .auth-tabs {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+}
+
+/* Reduce title spacing */
+.auth-container h2 {
+    margin-bottom: 8px;
+}
+
+.auth-container p {
+    margin-bottom: 20px;
 }
 
 /* Feedback subtitle */
 .feedback-subtitle {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
+}
+
+.feedback-container h2 {
+    margin-bottom: 8px;
 }
