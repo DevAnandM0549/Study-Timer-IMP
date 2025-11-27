@@ -64,7 +64,58 @@
     <!-- AUTH PAGE -->
     <div id="authPage" class="page active">
         <canvas id="authCanvas" class="interactive-canvas"></canvas>
-        <div class="auth-container">
+        
+        <!-- Auth content wrapper -->
+        <div class="auth-page-wrapper">
+            <!-- Left side - Info -->
+            <div class="auth-info-section">
+                <div class="auth-brand">
+                    <h1>🎯 StudyFlow</h1>
+                    <p class="tagline">Your Gamified Study Companion</p>
+                </div>
+                
+                <div class="auth-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">⏱️</span>
+                        <div>
+                            <h3>Pomodoro Timer</h3>
+                            <p>Stay focused with proven time management techniques</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <span class="feature-icon">🏆</span>
+                        <div>
+                            <h3>Earn Achievements</h3>
+                            <p>Unlock rewards and level up as you study</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <div>
+                            <h3>Track Progress</h3>
+                            <p>Visualize your study patterns and productivity</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <span class="feature-icon">📚</span>
+                        <div>
+                            <h3>Study Materials</h3>
+                            <p>Upload and access your notes during sessions</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="auth-footer-info">
+                    <p>📚 Study Smart. Stay Focused. Level Up! 🚀</p>
+                    <p class="college-info">Sri Sai Ram Engineering College • 2025</p>
+                </div>
+            </div>
+            
+            <!-- Right side - Auth form -->
+            <div class="auth-container">
             <div class="auth-tabs">
                 <button class="tab-btn active" data-tab="signIn" onclick="showAuthTab('signIn')">Sign In</button>
                 <button class="tab-btn" data-tab="signUp" onclick="showAuthTab('signUp')">Sign Up</button>
@@ -111,6 +162,7 @@
                     <div id="signUpError" class="error-message"></div>
                     <div id="signUpSuccess" class="success-message"></div>
                 </form>
+            </div>
             </div>
         </div>
     </div>
