@@ -3207,3 +3207,61 @@ select option:checked {
         transform: scale(1);
     }
 }
+
+
+/* ==================== FIX AUTH AND FEEDBACK PAGE SPACING ==================== */
+
+/* Auth page container */
+#authPage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+/* Feedback section container */
+#feedbackSection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    padding: 40px 20px;
+}
+
+.feedback-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Reduce excessive padding */
+.auth-form {
+    padding: 30px;
+}
+
+.feedback-form {
+    padding: 30px;
+}
+
+/* Compact form groups */
+.auth-form .form-group,
+.feedback-form .form-group {
+    margin-bottom: 20px;
+}
+
+/* Auth tabs */
+.auth-tabs {
+    margin-bottom: 25px;
+}
+
+/* Feedback subtitle */
+.feedback-subtitle {
+    margin-bottom: 30px;
+}
