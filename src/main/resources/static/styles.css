@@ -3433,13 +3433,19 @@ select option:checked {
 
 /* ==================== AUTH PAGE TWO-COLUMN LAYOUT ==================== */
 
+#authPage {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
 .auth-page-wrapper {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
     align-items: center;
     justify-content: center;
-    gap: 60px;
-    padding: 40px;
+    gap: 80px;
+    padding: 20px 40px;
     position: relative;
     z-index: 10;
 }
@@ -3447,12 +3453,12 @@ select option:checked {
 /* Left side - Info section */
 .auth-info-section {
     flex: 1;
-    max-width: 500px;
+    max-width: 450px;
 }
 
 .auth-brand h1 {
-    font-size: 3rem;
-    margin-bottom: 10px;
+    font-size: 2.5rem;
+    margin-bottom: 8px;
     background: linear-gradient(135deg, #6C63FF 0%, #FF6B9D 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -3460,80 +3466,91 @@ select option:checked {
 }
 
 .tagline {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
-    margin-bottom: 50px;
+    margin-bottom: 30px;
 }
 
 .auth-features {
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    margin-bottom: 50px;
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
 .feature-item {
     display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 20px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
     background: rgba(108, 99, 255, 0.05);
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid rgba(108, 99, 255, 0.1);
     transition: all 0.3s ease;
 }
 
 .feature-item:hover {
-    transform: translateX(10px);
+    transform: translateX(8px);
     background: rgba(108, 99, 255, 0.1);
     border-color: rgba(108, 99, 255, 0.3);
 }
 
 .feature-icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
     flex-shrink: 0;
 }
 
 .feature-item h3 {
-    margin: 0 0 5px 0;
+    margin: 0 0 2px 0;
     color: var(--text-primary);
-    font-size: 1.1rem;
+    font-size: 0.95rem;
 }
 
 .feature-item p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.5;
+    font-size: 0.8rem;
+    line-height: 1.4;
 }
 
 .auth-footer-info {
     text-align: center;
-    padding-top: 30px;
+    padding-top: 20px;
     border-top: 1px solid rgba(108, 99, 255, 0.2);
 }
 
 .auth-footer-info p {
-    margin: 8px 0;
+    margin: 5px 0;
     color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 .college-info {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
 }
 
 /* Right side - Auth form */
 #authPage .auth-container {
-    flex: 0 0 420px;
-    width: 420px;
+    flex: 0 0 380px;
+    width: 380px;
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
     .auth-page-wrapper {
         flex-direction: column;
-        gap: 40px;
+        gap: 20px;
+        padding: 20px;
+        overflow-y: auto;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    #authPage {
+        height: auto;
+        max-height: none;
+        overflow-y: auto;
     }
     
     .auth-info-section {
@@ -3550,6 +3567,6 @@ select option:checked {
     #authPage .auth-container {
         flex: 0 0 auto;
         width: 100%;
-        max-width: 420px;
+        max-width: 380px;
     }
 }
