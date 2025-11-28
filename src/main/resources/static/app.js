@@ -7,6 +7,7 @@ let currentSession = 'work';
 let currentTask = null;
 let taskFiles = {};
 let previousProgress = null;
+let currentModalTask = null;
 
 const sessionDurations = {
     work: 25 * 60,
@@ -19,14 +20,106 @@ const LEVEL_TITLES = ['Beginner Scholar', 'Dedicated Learner', 'Knowledge Seeker
 
 // ==================== PAGE NAVIGATION ====================
 function showPage(pageId) {
-    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-    document.getElementById(pageId).classList.add('active');
+    // Close any open modals/overlays before page navigation
+    closeAllOverlays();
+    
+    // Remove active class from ALL pages first
+    const allPages = document.querySelectorAll('.page');
+    allPages.forEach(page => {
+        page.classList.remove('active');
+        page.style.display = 'none';
+        page.style.visibility = 'hidden';
+    });
+    
+    // Show the target page
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        targetPage.style.display = pageId === 'authPage' ? 'flex' : 'block';
+        targetPage.style.visibility = 'visible';
+    }
 }
 
 function showSection(sectionId) {
+    // Close any open modals/overlays before section navigation
+    closeAllOverlays();
     document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
     document.getElementById(sectionId).classList.add('active');
 }
+
+// Close all modals and overlays
+function closeAllOverlays() {
+    // Close task modal
+    const taskModal = document.getElementById('taskModal');
+    if (taskModal && !taskModal.classList.contains('hidden')) {
+        taskModal.classList.add('hidden');
+    }
+    
+    // Close study viewer
+    const studyViewer = document.getElementById('studyViewer');
+    if (studyViewer && !studyViewer.classList.contains('hidden')) {
+        studyViewer.classList.add('hidden');
+        studyViewer.classList.remove('fullscreen-viewer');
+    }
+    
+    // Close notification popup (don't close automatically - user should dismiss)
+    // const notificationPopup = document.getElementById('notificationPopup');
+    // if (notificationPopup) notificationPopup.classList.add('hidden');
+    
+    // Reset current modal task
+    currentModalTask = null;
+}
+
+// Handle escape key to close modals
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        // Close notification first (highest z-index)
+        const notificationPopup = document.getElementById('notificationPopup');
+        if (notificationPopup && !notificationPopup.classList.contains('hidden')) {
+            closeNotification();
+            return;
+        }
+        
+        // Close study viewer if in fullscreen
+        const studyViewer = document.getElementById('studyViewer');
+        if (studyViewer && studyViewer.classList.contains('fullscreen-viewer')) {
+            studyViewer.classList.remove('fullscreen-viewer');
+            return;
+        }
+        
+        // Close study viewer
+        if (studyViewer && !studyViewer.classList.contains('hidden')) {
+            closeStudyViewer();
+            return;
+        }
+        
+        // Close task modal
+        const taskModal = document.getElementById('taskModal');
+        if (taskModal && !taskModal.classList.contains('hidden')) {
+            closeTaskModal();
+            return;
+        }
+    }
+});
+
+// Handle click outside modal to close
+document.addEventListener('click', function(e) {
+    // Close task modal when clicking outside
+    const taskModal = document.getElementById('taskModal');
+    if (taskModal && !taskModal.classList.contains('hidden')) {
+        if (e.target === taskModal) {
+            closeTaskModal();
+        }
+    }
+    
+    // Close notification when clicking outside
+    const notificationPopup = document.getElementById('notificationPopup');
+    if (notificationPopup && !notificationPopup.classList.contains('hidden')) {
+        if (e.target === notificationPopup) {
+            closeNotification();
+        }
+    }
+});
 
 function showDashboard() {
     showPage('dashboardPage');
@@ -49,10 +142,11 @@ function goToTasks() {
 }
 
 // ==================== NOTIFICATIONS ====================
-function showNotification(icon, title, message) {
+function showNotification(icon, title, message, buttonText = 'Awesome!') {
     document.getElementById('notificationIcon').textContent = icon;
     document.getElementById('notificationTitle').textContent = title;
     document.getElementById('notificationMessage').textContent = message;
+    document.getElementById('notificationBtn').textContent = buttonText;
     document.getElementById('notificationPopup').classList.remove('hidden');
 }
 
@@ -148,7 +242,9 @@ function logout() {
     currentUser = null;
     authCredentials = null;
     previousProgress = null;
+    currentModalTask = null;
     clearTimer();
+    closeAllOverlays();
     showPage('authPage');
     document.getElementById('signInForm').reset();
 }
@@ -420,8 +516,12 @@ function displayTaskList(containerId, tasks, isCompleted) {
 
     tasks.forEach(task => {
         const taskEl = document.createElement('div');
-        taskEl.className = 'task-item';
-        taskEl.onclick = () => openTaskModal(task);
+        taskEl.className = 'task-item' + (isCompleted ? ' completed' : '');
+        // Only allow clicking on active tasks
+        if (!isCompleted) {
+            taskEl.onclick = () => openTaskModal(task);
+            taskEl.style.cursor = 'pointer';
+        }
         // Use estimatedMinutes if available, otherwise fall back to pomodoros * 25
         const taskMinutes = task.estimatedMinutes || (task.estimatedPomodoros * 25);
         // Store task in a global map so we can access it by ID
@@ -436,14 +536,14 @@ function displayTaskList(containerId, tasks, isCompleted) {
                     <span>📊 ${task.completedPomodoros}/${task.estimatedPomodoros} pomodoros</span>
                 </div>
             </div>
-            <div class="task-actions" onclick="event.stopPropagation()">
+            <div class="task-actions">
                 ${!isCompleted ? `
                     <button class="task-action-btn" onclick="event.stopPropagation(); startTaskById(${task.id})">⏱️ Start</button>
                     <button class="task-action-btn" onclick="event.stopPropagation(); completeTask(${task.id}, '${task.title.replace(/'/g, "\\'")}')">✓ Complete</button>
                 ` : `
-                    <button class="task-action-btn" onclick="event.stopPropagation(); uncompleteTask(${task.id})">↩️ Restore</button>
+                    <button class="task-action-btn" onclick="uncompleteTask(${task.id})">↩️ Restore</button>
                 `}
-                <button class="task-action-btn" onclick="event.stopPropagation(); deleteTask(${task.id})">🗑️</button>
+                <button class="task-action-btn" onclick="${isCompleted ? '' : 'event.stopPropagation(); '}deleteTask(${task.id})">🗑️</button>
             </div>
         `;
         container.appendChild(taskEl);
@@ -530,22 +630,30 @@ function displayFileInViewer(file) {
     const container = document.getElementById('documentViewerContent');
     
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        // PDF - use object tag with toolbar
-        container.innerHTML = `
-            <div class="pdf-viewer-wrapper">
-                <div class="viewer-toolbar">
-                    <button class="viewer-tool-btn" onclick="openCurrentFileInNewTab()">🔗 Open in New Tab</button>
-                    <a href="${file.data}" download="${file.name}" class="viewer-tool-btn">⬇️ Download</a>
-                </div>
-                <object data="${file.data}" type="application/pdf" class="pdf-embed-viewer">
-                    <div class="pdf-fallback">
-                        <p>📄 PDF Preview</p>
-                        <p>Your browser may not support inline PDF viewing</p>
-                        <button class="btn-primary" onclick="openCurrentFileInNewTab()">Open in New Tab</button>
+        // PDF - convert base64 to blob for better large file handling
+        try {
+            const blobUrl = dataURLtoBlob(file.data);
+            container.innerHTML = `
+                <div class="pdf-viewer-wrapper">
+                    <div class="viewer-toolbar">
+                        <button class="viewer-tool-btn" onclick="openCurrentFileInNewTab()">🔗 Open in New Tab</button>
+                        <button class="viewer-tool-btn" onclick="downloadCurrentFile()">⬇️ Download</button>
                     </div>
-                </object>
-            </div>
-        `;
+                    <iframe id="pdfFrame" src="${blobUrl}" class="pdf-embed-viewer" style="width:100%;height:100%;border:none;"></iframe>
+                </div>
+            `;
+        } catch (e) {
+            // Fallback for very large files
+            container.innerHTML = `
+                <div class="pdf-fallback-large">
+                    <p style="font-size:48px;margin-bottom:20px;">📄</p>
+                    <p style="font-size:16px;font-weight:600;margin-bottom:10px;">${file.name}</p>
+                    <p style="color:var(--text-secondary);margin-bottom:20px;">This PDF is too large to preview inline</p>
+                    <button class="btn-primary" onclick="openCurrentFileInNewTab()">🔗 Open in New Tab</button>
+                    <button class="btn-secondary" onclick="downloadCurrentFile()" style="margin-left:10px;">⬇️ Download</button>
+                </div>
+            `;
+        }
     } else if (file.type.startsWith('image/')) {
         // Image with zoom
         container.innerHTML = `
@@ -572,6 +680,24 @@ function displayFileInViewer(file) {
                 <pre id="viewerTextContent">${escapeHtml(file.textContent || file.content)}</pre>
             </div>
         `;
+    } else if (file.name.endsWith('.docx') || file.name.endsWith('.doc') || 
+               file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+               file.type === 'application/msword') {
+        // Word documents - cannot preview in browser
+        container.innerHTML = `
+            <div class="docx-preview">
+                <div class="docx-icon">📝</div>
+                <div class="docx-info">
+                    <p class="docx-filename">${file.name}</p>
+                    <p class="docx-message">Word documents cannot be previewed in the browser.</p>
+                    <p class="docx-hint">Download the file to view it in Microsoft Word or Google Docs.</p>
+                </div>
+                <div class="docx-actions">
+                    <button class="btn-primary" onclick="downloadCurrentFile()">⬇️ Download File</button>
+                    <button class="btn-secondary" onclick="openInGoogleDocs()">📄 Open in Google Docs</button>
+                </div>
+            </div>
+        `;
     } else {
         // Other files
         container.innerHTML = `
@@ -579,7 +705,7 @@ function displayFileInViewer(file) {
                 <p>📄</p>
                 <p>${file.name}</p>
                 <p>This file type cannot be previewed directly</p>
-                <a href="${file.data}" download="${file.name}" class="btn-primary" style="margin-top: 20px; text-decoration: none;">Download File</a>
+                <button class="btn-primary" onclick="downloadCurrentFile()" style="margin-top: 20px;">⬇️ Download File</button>
             </div>
         `;
     }
@@ -611,22 +737,63 @@ function copyViewerText() {
     }
 }
 
+// Convert base64 data URL to blob URL for better large file handling
+function dataURLtoBlob(dataURL) {
+    const parts = dataURL.split(',');
+    const mime = parts[0].match(/:(.*?);/)[1];
+    const bstr = atob(parts[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    const blob = new Blob([u8arr], { type: mime });
+    return URL.createObjectURL(blob);
+}
+
+// Download current file
+function downloadCurrentFile() {
+    const file = window.currentViewerFile;
+    if (!file || !file.data) return;
+    
+    const link = document.createElement('a');
+    link.href = file.data;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Open DOCX in Google Docs (downloads first, then user can upload to Google Docs)
+function openInGoogleDocs() {
+    showNotification('📄', 'Opening Google Docs', 'Download the file first, then upload it to Google Docs to view.', 'Got it');
+    downloadCurrentFile();
+}
+
 function openCurrentFileInNewTab() {
     const file = window.currentViewerFile;
     if (!file || !file.data) return;
     
-    const newWindow = window.open('', '_blank');
     if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-        newWindow.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head><title>${file.name} - StudyFlow</title></head>
-            <body style="margin:0;padding:0;height:100vh;">
-                <embed src="${file.data}" type="application/pdf" style="width:100%;height:100%;">
-            </body>
-            </html>
-        `);
+        // Use blob URL for PDFs to handle large files
+        try {
+            const blobUrl = dataURLtoBlob(file.data);
+            window.open(blobUrl, '_blank');
+        } catch (e) {
+            // Fallback to data URL
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head><title>${file.name} - StudyFlow</title></head>
+                <body style="margin:0;padding:0;height:100vh;">
+                    <embed src="${file.data}" type="application/pdf" style="width:100%;height:100%;">
+                </body>
+                </html>
+            `);
+        }
     } else if (file.type.startsWith('image/')) {
+        const newWindow = window.open('', '_blank');
         newWindow.document.write(`
             <!DOCTYPE html>
             <html>
@@ -655,7 +822,6 @@ function toggleDocumentViewer() {
 }
 
 // ==================== TASK MODAL ====================
-let currentModalTask = null;
 
 async function openTaskModal(task) {
     currentModalTask = task;
@@ -750,72 +916,123 @@ function handleFileUpload(event) {
     
     const fileType = file.type;
     
-    // For PDFs and images, read as data URL
-    if (fileType === 'application/pdf' || fileType.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const fileData = {
+    // Show upload progress indicator
+    showUploadProgress(file.name);
+    
+    const reader = new FileReader();
+    
+    // Track progress
+    reader.onprogress = function(e) {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            updateUploadProgress(percent, 'Reading file...');
+        }
+    };
+    
+    reader.onload = async function(e) {
+        updateUploadProgress(50, 'Uploading to server...');
+        
+        let fileData;
+        if (fileType === 'application/pdf' || fileType.startsWith('image/')) {
+            fileData = {
                 name: file.name,
                 type: fileType,
                 data: e.target.result,
                 textContent: null,
                 content: fileType.startsWith('image/') ? `<img src="${e.target.result}" alt="${file.name}">` : ''
             };
-            // Save to server
-            const fileId = await saveFileToServer(taskId, fileData);
-            if (fileId) {
-                fileData.id = fileId;
-                taskFiles[taskId].push(fileData);
-                displayUploadedFiles(taskId);
-            }
-        };
-        reader.readAsDataURL(file);
-    } 
-    // For text files, read as text
-    else if (fileType === 'text/plain' || file.name.endsWith('.txt')) {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const fileData = {
+        } else if (fileType === 'text/plain' || file.name.endsWith('.txt')) {
+            fileData = {
                 name: file.name,
                 type: fileType || 'text/plain',
                 textContent: e.target.result,
                 data: null,
                 content: `<pre>${e.target.result}</pre>`
             };
-            // Save to server
-            const fileId = await saveFileToServer(taskId, fileData);
-            if (fileId) {
-                fileData.id = fileId;
-                taskFiles[taskId].push(fileData);
-                displayUploadedFiles(taskId);
-            }
-        };
-        reader.readAsText(file);
-    }
-    // For other files
-    else {
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const fileData = {
+        } else {
+            fileData = {
                 name: file.name,
                 type: fileType,
                 data: e.target.result,
                 textContent: null,
                 content: `<p>📄 ${file.name}</p>`
             };
-            // Save to server
-            const fileId = await saveFileToServer(taskId, fileData);
-            if (fileId) {
-                fileData.id = fileId;
-                taskFiles[taskId].push(fileData);
+        }
+        
+        // Save to server
+        const fileId = await saveFileToServer(taskId, fileData);
+        
+        if (fileId) {
+            updateUploadProgress(100, 'Complete!');
+            fileData.id = fileId;
+            taskFiles[taskId].push(fileData);
+            setTimeout(() => {
+                hideUploadProgress();
                 displayUploadedFiles(taskId);
-            }
-        };
+            }, 500);
+        } else {
+            hideUploadProgress();
+            showNotification('❌', 'Upload Failed', 'Could not save file. Please try again.', 'OK');
+        }
+    };
+    
+    reader.onerror = function() {
+        hideUploadProgress();
+        showNotification('❌', 'Upload Failed', 'Error reading file. Please try again.', 'OK');
+    };
+    
+    // Read file based on type
+    if (fileType === 'text/plain' || file.name.endsWith('.txt')) {
+        reader.readAsText(file);
+    } else {
         reader.readAsDataURL(file);
     }
     
     // Reset input
     event.target.value = '';
+}
+
+// Upload progress functions
+function showUploadProgress(fileName) {
+    let progressContainer = document.getElementById('uploadProgressContainer');
+    if (!progressContainer) {
+        progressContainer = document.createElement('div');
+        progressContainer.id = 'uploadProgressContainer';
+        progressContainer.className = 'upload-progress-container';
+        progressContainer.innerHTML = `
+            <div class="upload-progress-content">
+                <div class="upload-progress-icon">📤</div>
+                <div class="upload-progress-info">
+                    <div class="upload-progress-filename"></div>
+                    <div class="upload-progress-status">Preparing...</div>
+                    <div class="upload-progress-bar">
+                        <div class="upload-progress-fill"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('taskModal').querySelector('.modal-body').appendChild(progressContainer);
+    }
+    
+    progressContainer.querySelector('.upload-progress-filename').textContent = fileName;
+    progressContainer.querySelector('.upload-progress-status').textContent = 'Preparing...';
+    progressContainer.querySelector('.upload-progress-fill').style.width = '0%';
+    progressContainer.classList.remove('hidden');
+}
+
+function updateUploadProgress(percent, status) {
+    const progressContainer = document.getElementById('uploadProgressContainer');
+    if (progressContainer) {
+        progressContainer.querySelector('.upload-progress-fill').style.width = percent + '%';
+        progressContainer.querySelector('.upload-progress-status').textContent = status;
+    }
+}
+
+function hideUploadProgress() {
+    const progressContainer = document.getElementById('uploadProgressContainer');
+    if (progressContainer) {
+        progressContainer.classList.add('hidden');
+    }
 }
 
 function displayUploadedFiles(taskId) {
@@ -1229,18 +1446,28 @@ function displayWeeklyChart(data) {
     const container = document.getElementById('weeklyChartContainer');
     container.innerHTML = '';
     
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const maxMinutes = Math.max(...data.map(d => d.minutes || 0), 30);
+    // Map full day names to short names
+    const dayShortNames = {
+        'Monday': 'Mon', 'Tuesday': 'Tue', 'Wednesday': 'Wed',
+        'Thursday': 'Thu', 'Friday': 'Fri', 'Saturday': 'Sat', 'Sunday': 'Sun'
+    };
+    
+    const maxMinutes = Math.max(...data.map(d => d.minutes || 0), 1);
 
-    days.forEach((day, index) => {
-        const dayData = data[index] || { minutes: 0 };
-        const height = Math.max((dayData.minutes / maxMinutes) * 100, 5);
+    data.forEach((dayData) => {
+        const minutes = dayData.minutes || 0;
+        const dayName = dayShortNames[dayData.day] || dayData.day?.substring(0, 3) || '?';
+        // Empty bars get minimal height, bars with data scale from 15% to 100%
+        const height = minutes === 0 ? 3 : Math.max((minutes / maxMinutes) * 85 + 15, 15);
         
         const barEl = document.createElement('div');
-        barEl.className = 'chart-bar';
+        barEl.className = 'chart-bar' + (minutes === 0 ? ' empty' : '');
         barEl.style.height = `${height}%`;
-        barEl.innerHTML = `<div class="chart-bar-label">${day}</div>`;
-        barEl.title = `${dayData.minutes || 0} minutes`;
+        barEl.innerHTML = `
+            <div class="chart-bar-value">${minutes > 0 ? minutes + 'm' : ''}</div>
+            <div class="chart-bar-label">${dayName}</div>
+        `;
+        barEl.title = `${dayData.day}: ${minutes} minutes`;
         container.appendChild(barEl);
     });
 }
@@ -1294,84 +1521,6 @@ document.getElementById('navFeedback').addEventListener('click', () => {
 
 document.getElementById('logoutBtn').addEventListener('click', logout);
 
-// ==================== AI CHAT ====================
-async function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // Add user message to chat
-    addChatMessage(message, 'user');
-    input.value = '';
-    
-    // Show loading
-    document.getElementById('chatLoading').classList.remove('hidden');
-    
-    try {
-        const response = await authenticatedFetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
-        
-        if (response && response.ok) {
-            const data = await response.json();
-            addChatMessage(data.response, 'ai');
-        } else {
-            addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
-        }
-    } catch (error) {
-        console.error('Chat error:', error);
-        addChatMessage('Sorry, I encountered an error. Please try again.', 'ai');
-    } finally {
-        document.getElementById('chatLoading').classList.add('hidden');
-    }
-}
-
-function addChatMessage(text, sender) {
-    const messagesContainer = document.getElementById('chatMessages');
-    const messageEl = document.createElement('div');
-    messageEl.className = `chat-message ${sender}-message`;
-    
-    const avatar = sender === 'ai' ? '🤖' : '👤';
-    
-    // Format the text with proper line breaks and preserve formatting
-    let formattedText = escapeHtml(text)
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>');
-    
-    // Wrap in paragraph if not already
-    if (!formattedText.startsWith('<p>')) {
-        formattedText = '<p>' + formattedText + '</p>';
-    }
-    
-    messageEl.innerHTML = `
-        <div class="message-avatar">${avatar}</div>
-        <div class="message-content">
-            ${formattedText}
-        </div>
-    `;
-    
-    messagesContainer.appendChild(messageEl);
-    
-    // Smooth scroll to bottom
-    setTimeout(() => {
-        messagesContainer.scrollTo({
-            top: messagesContainer.scrollHeight,
-            behavior: 'smooth'
-        });
-    }, 100);
-}
-
-document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
-
-document.getElementById('chatInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendChatMessage();
-    }
-});
-
 // ==================== FEEDBACK ====================
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1404,242 +1553,148 @@ document.getElementById('feedbackForm').addEventListener('submit', async (e) => 
     }
 });
 
+// ==================== INTERACTIVE ANIMATIONS ====================
+
+// Auth Page - Connecting Dots Network Animation
+function initDotsAnimation() {
+    const canvas = document.getElementById('dotsCanvas');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 150 };
+    let animationId = null;
+    
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = (Math.random() - 0.5) * 1.5;
+            this.speedY = (Math.random() - 0.5) * 1.5;
+            this.color = `hsla(${245 + Math.random() * 30}, 80%, 65%, 0.8)`;
+        }
+        
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        update() {
+            // Continuous movement
+            this.x += this.speedX;
+            this.y += this.speedY;
+            
+            // Wrap around edges
+            if (this.x < 0) this.x = canvas.width;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.y < 0) this.y = canvas.height;
+            if (this.y > canvas.height) this.y = 0;
+            
+            // Mouse interaction - attract or repel
+            if (mouse.x !== null && mouse.y !== null) {
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouse.radius) {
+                    let force = (mouse.radius - distance) / mouse.radius;
+                    this.x -= (dx / distance) * force * 3;
+                    this.y -= (dy / distance) * force * 3;
+                }
+            }
+        }
+    }
+    
+    function init() {
+        particles = [];
+        let count = Math.min((canvas.width * canvas.height) / 10000, 80);
+        for (let i = 0; i < count; i++) {
+            particles.push(new Particle());
+        }
+    }
+    
+    function connectParticles() {
+        for (let a = 0; a < particles.length; a++) {
+            for (let b = a + 1; b < particles.length; b++) {
+                let dx = particles[a].x - particles[b].x;
+                let dy = particles[a].y - particles[b].y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 150) {
+                    let opacity = (1 - distance / 150) * 0.5;
+                    ctx.strokeStyle = `rgba(108, 99, 255, ${opacity})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[a].x, particles[a].y);
+                    ctx.lineTo(particles[b].x, particles[b].y);
+                    ctx.stroke();
+                }
+            }
+        }
+        
+        // Connect to mouse
+        if (mouse.x !== null && mouse.y !== null) {
+            for (let p of particles) {
+                let dx = mouse.x - p.x;
+                let dy = mouse.y - p.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 200) {
+                    let opacity = (1 - distance / 200) * 0.6;
+                    ctx.strokeStyle = `rgba(255, 107, 157, ${opacity})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        for (let p of particles) {
+            p.update();
+            p.draw();
+        }
+        connectParticles();
+        
+        animationId = requestAnimationFrame(animate);
+    }
+    
+    canvas.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+        mouse.x = null;
+        mouse.y = null;
+    });
+    
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+        init();
+    });
+    
+    resizeCanvas();
+    init();
+    animate();
+}
+
 // Initialize
 window.addEventListener('DOMContentLoaded', () => {
+    showPage('authPage');
     resetTimer();
-});
-
-
-// ==================== INTERACTIVE PARTICLE BACKGROUND ====================
-class ParticleBackground {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) return;
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.mouse = { x: null, y: null, radius: 150 };
-        this.colors = ['#6C63FF', '#FF6B9D', '#00D4AA', '#8B85FF'];
-        
-        this.resize();
-        this.init();
-        this.animate();
-        
-        window.addEventListener('resize', () => this.resize());
-        this.canvas.parentElement.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        this.canvas.parentElement.addEventListener('mouseleave', () => {
-            this.mouse.x = null;
-            this.mouse.y = null;
-        });
-    }
-    
-    resize() {
-        this.canvas.width = this.canvas.parentElement.offsetWidth;
-        this.canvas.height = this.canvas.parentElement.offsetHeight;
-    }
-    
-    init() {
-        this.particles = [];
-        const numberOfParticles = Math.floor((this.canvas.width * this.canvas.height) / 15000);
-        
-        for (let i = 0; i < numberOfParticles; i++) {
-            const size = Math.random() * 3 + 1;
-            const x = Math.random() * this.canvas.width;
-            const y = Math.random() * this.canvas.height;
-            const speedX = (Math.random() - 0.5) * 0.5;
-            const speedY = (Math.random() - 0.5) * 0.5;
-            const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-            
-            this.particles.push({ x, y, size, speedX, speedY, color, baseX: x, baseY: y });
-        }
-    }
-    
-    handleMouseMove(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        this.mouse.x = e.clientX - rect.left;
-        this.mouse.y = e.clientY - rect.top;
-    }
-    
-    animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        this.particles.forEach((particle, index) => {
-            // Move particles
-            particle.x += particle.speedX;
-            particle.y += particle.speedY;
-            
-            // Bounce off edges
-            if (particle.x < 0 || particle.x > this.canvas.width) particle.speedX *= -1;
-            if (particle.y < 0 || particle.y > this.canvas.height) particle.speedY *= -1;
-            
-            // Mouse interaction
-            if (this.mouse.x != null && this.mouse.y != null) {
-                const dx = this.mouse.x - particle.x;
-                const dy = this.mouse.y - particle.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < this.mouse.radius) {
-                    const force = (this.mouse.radius - distance) / this.mouse.radius;
-                    const angle = Math.atan2(dy, dx);
-                    particle.x -= Math.cos(angle) * force * 3;
-                    particle.y -= Math.sin(angle) * force * 3;
-                }
-            }
-            
-            // Return to base position slowly
-            particle.x += (particle.baseX - particle.x) * 0.01;
-            particle.y += (particle.baseY - particle.y) * 0.01;
-            
-            // Draw particle
-            this.ctx.fillStyle = particle.color;
-            this.ctx.globalAlpha = 0.6;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            // Draw connections
-            for (let j = index + 1; j < this.particles.length; j++) {
-                const other = this.particles[j];
-                const dx = particle.x - other.x;
-                const dy = particle.y - other.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < 100) {
-                    this.ctx.strokeStyle = particle.color;
-                    this.ctx.globalAlpha = (1 - distance / 100) * 0.3;
-                    this.ctx.lineWidth = 0.5;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(particle.x, particle.y);
-                    this.ctx.lineTo(other.x, other.y);
-                    this.ctx.stroke();
-                }
-            }
-        });
-        
-        this.ctx.globalAlpha = 1;
-        requestAnimationFrame(() => this.animate());
-    }
-}
-
-// Initialize particle backgrounds
-window.addEventListener('DOMContentLoaded', () => {
-    new ParticleBackground('authCanvas');
-    
-    // Initialize feedback canvas when section is shown
-    document.getElementById('navFeedback')?.addEventListener('click', () => {
-        setTimeout(() => {
-            if (!window.feedbackParticles) {
-                window.feedbackParticles = new ParticleBackground('feedbackCanvas');
-            }
-        }, 100);
-    });
-});
-
-
-// ==================== INTERACTIVE PARTICLE BACKGROUND ====================
-class ParticleBackground {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        if (!this.canvas) return;
-        
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.mouse = { x: null, y: null, radius: 120 };
-        this.colors = ['#6C63FF', '#FF6B9D', '#00D4AA', '#8B85FF'];
-        
-        this.resize();
-        this.init();
-        this.animate();
-        
-        window.addEventListener('resize', () => this.resize());
-        
-        this.canvas.parentElement.addEventListener('mousemove', (e) => {
-            const rect = this.canvas.getBoundingClientRect();
-            this.mouse.x = e.clientX - rect.left;
-            this.mouse.y = e.clientY - rect.top;
-        });
-        
-        this.canvas.parentElement.addEventListener('mouseleave', () => {
-            this.mouse.x = null;
-            this.mouse.y = null;
-        });
-    }
-    
-    resize() {
-        this.canvas.width = this.canvas.parentElement.offsetWidth;
-        this.canvas.height = this.canvas.parentElement.offsetHeight;
-        this.init();
-    }
-    
-    init() {
-        this.particles = [];
-        const numberOfParticles = Math.floor((this.canvas.width * this.canvas.height) / 12000);
-        
-        for (let i = 0; i < numberOfParticles; i++) {
-            const size = Math.random() * 3 + 1;
-            const x = Math.random() * this.canvas.width;
-            const y = Math.random() * this.canvas.height;
-            const speedX = (Math.random() - 0.5) * 0.8;
-            const speedY = (Math.random() - 0.5) * 0.8;
-            const color = this.colors[Math.floor(Math.random() * this.colors.length)];
-            
-            this.particles.push({ x, y, size, speedX, speedY, color, baseX: x, baseY: y });
-        }
-    }
-    
-    animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        this.particles.forEach((particle, index) => {
-            particle.x += particle.speedX;
-            particle.y += particle.speedY;
-            
-            if (particle.x < 0 || particle.x > this.canvas.width) particle.speedX *= -1;
-            if (particle.y < 0 || particle.y > this.canvas.height) particle.speedY *= -1;
-            
-            if (this.mouse.x != null && this.mouse.y != null) {
-                const dx = this.mouse.x - particle.x;
-                const dy = this.mouse.y - particle.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < this.mouse.radius) {
-                    const force = (this.mouse.radius - distance) / this.mouse.radius;
-                    const angle = Math.atan2(dy, dx);
-                    particle.x -= Math.cos(angle) * force * 4;
-                    particle.y -= Math.sin(angle) * force * 4;
-                }
-            }
-            
-            this.ctx.fillStyle = particle.color;
-            this.ctx.globalAlpha = 0.7;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-            
-            for (let j = index + 1; j < this.particles.length; j++) {
-                const other = this.particles[j];
-                const dx = particle.x - other.x;
-                const dy = particle.y - other.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance < 120) {
-                    this.ctx.strokeStyle = particle.color;
-                    this.ctx.globalAlpha = (1 - distance / 120) * 0.4;
-                    this.ctx.lineWidth = 0.8;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(particle.x, particle.y);
-                    this.ctx.lineTo(other.x, other.y);
-                    this.ctx.stroke();
-                }
-            }
-        });
-        
-        this.ctx.globalAlpha = 1;
-        requestAnimationFrame(() => this.animate());
-    }
-}
-
-// Initialize particle background on auth page
-window.addEventListener('DOMContentLoaded', () => {
-    new ParticleBackground('authCanvas');
+    initDotsAnimation();
 });

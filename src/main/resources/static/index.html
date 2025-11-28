@@ -18,7 +18,7 @@
             <div class="notification-icon" id="notificationIcon">🎉</div>
             <h3 id="notificationTitle">Congratulations!</h3>
             <p id="notificationMessage">You've unlocked an achievement!</p>
-            <button class="btn-primary" onclick="closeNotification()">Awesome!</button>
+            <button id="notificationBtn" class="btn-primary" onclick="closeNotification()">Awesome!</button>
         </div>
     </div>
 
@@ -63,59 +63,8 @@
 
     <!-- AUTH PAGE -->
     <div id="authPage" class="page active">
-        <canvas id="authCanvas" class="interactive-canvas"></canvas>
-        
-        <!-- Auth content wrapper -->
-        <div class="auth-page-wrapper">
-            <!-- Left side - Info -->
-            <div class="auth-info-section">
-                <div class="auth-brand">
-                    <h1>🎯 StudyFlow</h1>
-                    <p class="tagline">Your Gamified Study Companion</p>
-                </div>
-                
-                <div class="auth-features">
-                    <div class="feature-item">
-                        <span class="feature-icon">⏱️</span>
-                        <div>
-                            <h3>Pomodoro Timer</h3>
-                            <p>Stay focused with proven time management techniques</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <span class="feature-icon">🏆</span>
-                        <div>
-                            <h3>Earn Achievements</h3>
-                            <p>Unlock rewards and level up as you study</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <span class="feature-icon">📊</span>
-                        <div>
-                            <h3>Track Progress</h3>
-                            <p>Visualize your study patterns and productivity</p>
-                        </div>
-                    </div>
-                    
-                    <div class="feature-item">
-                        <span class="feature-icon">📚</span>
-                        <div>
-                            <h3>Study Materials</h3>
-                            <p>Upload and access your notes during sessions</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="auth-footer-info">
-                    <p>📚 Study Smart. Stay Focused. Level Up! 🚀</p>
-                    <p class="college-info">Sri Sai Ram Engineering College • 2025</p>
-                </div>
-            </div>
-            
-            <!-- Right side - Auth form -->
-            <div class="auth-container">
+        <canvas id="dotsCanvas"></canvas>
+        <div class="auth-container">
             <div class="auth-tabs">
                 <button class="tab-btn active" data-tab="signIn" onclick="showAuthTab('signIn')">Sign In</button>
                 <button class="tab-btn" data-tab="signUp" onclick="showAuthTab('signUp')">Sign Up</button>
@@ -162,7 +111,6 @@
                     <div id="signUpError" class="error-message"></div>
                     <div id="signUpSuccess" class="success-message"></div>
                 </form>
-            </div>
             </div>
         </div>
     </div>
@@ -472,21 +420,17 @@
                     <h3>💡 Pro Tips</h3>
                     <div class="tips-slider">
                         <div class="tips-track">
-                            <div class="tip-item">💡 Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break</div>
+                            <div class="tip-item">🍅 Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break</div>
                             <div class="tip-item">📚 Upload your study materials before starting a session for easy access</div>
-                            <div class="tip-item">🎯 Set realistic task durations to maintain motivation</div>
+                            <div class="tip-item">⏰ Set realistic task durations to maintain motivation</div>
                             <div class="tip-item">🏆 Check your achievements regularly to see what challenges you can complete</div>
                             <div class="tip-item">🔥 Build a daily streak to maximize your XP gains</div>
-                            <div class="tip-item">🤖 Ask the AI Assistant for personalized study tips and motivation when you need it</div>
-                            <div class="tip-item">✨ Use the AI to help break down complex topics into manageable study sessions</div>
                             <!-- Duplicate for seamless loop -->
-                            <div class="tip-item">💡 Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break</div>
+                            <div class="tip-item">🍅 Use the Pomodoro technique: 25 minutes of focused work followed by a 5-minute break</div>
                             <div class="tip-item">📚 Upload your study materials before starting a session for easy access</div>
-                            <div class="tip-item">🎯 Set realistic task durations to maintain motivation</div>
+                            <div class="tip-item">⏰ Set realistic task durations to maintain motivation</div>
                             <div class="tip-item">🏆 Check your achievements regularly to see what challenges you can complete</div>
                             <div class="tip-item">🔥 Build a daily streak to maximize your XP gains</div>
-                            <div class="tip-item">🤖 Ask the AI Assistant for personalized study tips and motivation when you need it</div>
-                            <div class="tip-item">✨ Use the AI to help break down complex topics into manageable study sessions</div>
                         </div>
                     </div>
                 </div>
@@ -495,7 +439,6 @@
 
         <!-- FEEDBACK SECTION -->
         <div id="feedbackSection" class="section">
-            <canvas id="feedbackCanvas" class="interactive-canvas"></canvas>
             <div class="feedback-container">
                 <h2>💬 Send Us Your Feedback</h2>
                 <p class="feedback-subtitle">We'd love to hear your thoughts, suggestions, or report any issues!</p>

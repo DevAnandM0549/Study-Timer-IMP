@@ -68,7 +68,10 @@ public class StatisticsService {
             int totalMinutes = daySessions.stream()
                     .mapToInt(Session::getDurationMinutes)
                     .sum();
-            weeklyData.put(date.getDayOfWeek().toString(), totalMinutes);
+            // Convert MONDAY -> Monday format to match controller
+            String dayName = date.getDayOfWeek().toString();
+            dayName = dayName.charAt(0) + dayName.substring(1).toLowerCase();
+            weeklyData.put(dayName, totalMinutes);
         }
 
         return weeklyData;

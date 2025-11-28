@@ -64,9 +64,10 @@ public class StatisticsController {
         
         Map<String, Integer> weeklyData = statisticsService.getWeeklyActivity(user);
         
-        // Convert to array format for frontend chart
+        // Convert to array format for frontend chart - week starting from Sunday
         List<Map<String, Object>> chartData = new ArrayList<>();
-        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        String[] days = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        
         for (String day : days) {
             Map<String, Object> dayData = new HashMap<>();
             dayData.put("day", day);
