@@ -15,8 +15,8 @@ const sessionDurations = {
     longBreak: 15 * 60
 };
 
-const LEVEL_THRESHOLDS = [0, 500, 1500, 3000, 5000];
-const LEVEL_TITLES = ['Beginner Scholar', 'Dedicated Learner', 'Knowledge Seeker', 'Study Master', 'Legendary Scholar'];
+const LEVEL_THRESHOLDS = [0, 500, 1500, 3000, 5000, 8000, 10000];
+const LEVEL_TITLES = ['Beginner Scholar', 'Dedicated Learner', 'Knowledge Seeker', 'Study Master', 'Legendary Scholar', 'Heroic Seer', 'The Final Destination'];
 
 // ==================== PAGE NAVIGATION ====================
 function showPage(pageId) {

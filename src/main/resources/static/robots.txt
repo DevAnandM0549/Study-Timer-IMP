@@ -1,0 +1,16 @@
+# robots.txt for StudyFlow
+User-agent: *
+Allow: /
+
+# Disallow API endpoints
+Disallow: /api/
+Disallow: /auth/
+Disallow: /h2-console/
+
+# Disallow direct access to source files
+Disallow: /app.js
+Disallow: /styles.css
+Disallow: /index.html
+
+# Sitemap (uncomment if you have one)
+# Sitemap: https://yourdomain.com/sitemap.xml
